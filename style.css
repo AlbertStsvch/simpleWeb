@@ -200,4 +200,86 @@ footer {
     z-index: 3;
     pointer-events: none;
     text-align: center;
+}
+
+/* Merchandise Styles */
+.merch-item {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    position: relative;
+    background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+    border: 2px solid #333;
+}
+
+.price {
+    font-size: 2em;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.merch-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.merch-description {
+    font-size: 0.8em;
+    color: #aaa;
+    line-height: 1.4;
+    margin-bottom: 15px;
+}
+
+.out-of-stock {
+    position: absolute;
+    top: 90px;
+    right: -70px;
+    background: rgba(255, 68, 68, 0.7); /* 30% прозрачности */
+    color: white;
+    padding: 5px 30px;
+    transform: rotate(45deg);
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.best-seller {
+    position: absolute;
+    top: 52px;
+    right: -70px;
+    background: rgba(76, 175, 80, 0.7); /* 30% прозрачности */
+    color: white;
+    padding: 5px 30px;
+    transform: rotate(45deg);
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.merch-item:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.merch-item:hover .price {
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    }
+    to {
+        text-shadow: 0 0 20px rgba(76, 175, 80, 0.8),
+                     0 0 30px rgba(76, 175, 80, 0.6);
+    }
 } 

@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сайт физарума</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR-ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'YOUR-ID');
+    </script>
 </head>
 <body>
     <canvas id="physarum-canvas"></canvas>
@@ -29,8 +37,8 @@
                 </div>
                 <div class="card">
                     <div class="card-image"><img src="radar.png" alt="radar" /></div>
-                    <div class="card-title">Darth Vader told me to censour</div>
-                    <div class="card-title">this. sorry.</div>
+                    <div class="card-title">Darth Vader told me to censour this</div>
+                    <div class="card-title">Sorry.</div>
                 </div>
                 <div class="card">
                     <div class="card-image">
@@ -55,7 +63,50 @@
             </div>
         </section>
         <section id="tab-merch" class="tab-content">
-            <!-- Merch content -->
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-image">
+                        <div class="merch-item">
+                            <div class="price">$9999.99</div>
+                            <div class="merch-title">Настоящий живой физарум</div>
+                            <div class="merch-description">
+                                Внимание! Товар может сбежать до доставки. 
+                                Возврату и обмену не подлежит, потому что уползёт.
+                            </div>
+                            <div class="out-of-stock">Временно уполз</div>
+                        </div>
+                    </div>
+                    <div class="card-title">Premium Physarum™</div>
+                </div>
+                <div class="card">
+                    <div class="card-image">
+                        <div class="merch-item">
+                            <div class="price">$42.00</div>
+                            <div class="merch-title">Футболка "Я ♥ Physarum"</div>
+                            <div class="merch-description">
+                                Футболка может самостоятельно находить оптимальный путь в шкафу.
+                                Стирать только при полнолунии.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-title">Smart T-Shirt</div>
+                </div>
+                <div class="card">
+                    <div class="card-image">
+                        <div class="merch-item">
+                            <div class="price">$0.99</div>
+                            <div class="merch-title">Цифровая еда для физарума</div>
+                            <div class="merch-description">
+                                100% органический код. 
+                                Подходит для всех типов симуляций.
+                                Без ГМО и циклов while(true).
+                            </div>
+                            <div class="best-seller">Бестселлер</div>
+                        </div>
+                    </div>
+                    <div class="card-title">Digital Food Pack</div>
+                </div>
+            </div>
         </section>
     </main>
     <footer>
