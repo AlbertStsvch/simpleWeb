@@ -35,6 +35,7 @@ if (cubeContainer && window.THREE) {
 // Переключение вкладок
 const tabs = document.querySelectorAll('.nav-tab');
 const tabContents = document.querySelectorAll('.tab-content');
+const physarumCanvas = document.getElementById('physarum-canvas');
 tabs.forEach(tab => {
     tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
@@ -44,8 +45,17 @@ tabs.forEach(tab => {
             content.classList.remove('active');
         });
         document.getElementById('tab-' + tabName).classList.add('active');
+        // Показывать physarum только на Home
+        if (physarumCanvas) {
+            physarumCanvas.style.display = (tabName === 'home') ? 'block' : 'none';
+        }
     });
 });
+
+// При загрузке показывать только если Home активен
+if (physarumCanvas) {
+    physarumCanvas.style.display = document.querySelector('.nav-tab.active[data-tab="home"]') ? 'block' : 'none';
+}
 
 // Заготовка для physarum simulation
 function resizePhysarumCanvas() {
