@@ -1,7 +1,12 @@
-body {
-    font-family: Arial, sans-serif;
+html, body {
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+body {
+    font-family: Arial, sans-serif;
     background: #f4f4f4;
     color: #222;
 }
@@ -38,4 +43,68 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.navbar {
+    background: #222;
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1000;
+}
+.nav-tabs {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    height: 56px;
+    align-items: center;
+}
+.nav-tab {
+    color: #fff;
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background 0.2s;
+    user-select: none;
+}
+.nav-tab.active, .nav-tab:hover {
+    background: #444;
+}
+main {
+    margin-top: 56px;
+    height: calc(100dvh - 56px);
+    width: 100vw;
+    overflow: hidden;
+}
+.tab-content {
+    display: none;
+    height: 100%;
+    width: 100%;
+}
+.tab-content.active {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+#physarum-canvas {
+    display: block;
+    width: calc(90% - 150px);
+    height: calc(80% - 150px);
+    background: #111;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+}
+footer {
+    display: none;
 } 

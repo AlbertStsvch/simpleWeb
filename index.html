@@ -7,15 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Добро пожаловать на простой сайт!</h1>
-        <h2>Вращающийся куб с помощью Three.js</h2>
-    </header>
+    <nav class="navbar">
+        <ul class="nav-tabs">
+            <li class="nav-tab active" data-tab="home">Home</li>
+            <li class="nav-tab" data-tab="programs">Programs</li>
+            <li class="nav-tab" data-tab="merch">Merch</li>
+        </ul>
+    </nav>
     <main>
-        <p>Это стартовая страница.</p>
-        <button id="helloBtn">Сказать привет</button>
+        <section id="tab-home" class="tab-content active">
+            <canvas id="physarum-canvas"></canvas>
+        </section>
+        <section id="tab-programs" class="tab-content">
+            <!-- Programs content -->
+        </section>
+        <section id="tab-merch" class="tab-content">
+            <!-- Merch content -->
+        </section>
     </main>
-    <div id="cube-container"></div>
     <footer>
         <p> 2025 Простой сайт</p>
     </footer>
