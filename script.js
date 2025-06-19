@@ -215,4 +215,27 @@ function randomizeAgentParams() {
     STEP_SIZE = 0.8 + Math.random() * 2.0; // 0.8..2.8
 }
 setInterval(randomizeAgentParams, 10000);
-randomizeAgentParams(); 
+randomizeAgentParams();
+
+// Секретная кнопка на 4-й карточке
+function setupSecretBtn() {
+    document.querySelectorAll('.card').forEach(card => {
+        const btn = card.querySelector('.secret-btn');
+        const text = card.querySelector('.secret-text');
+        if (btn && text) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (text.style.display === 'none' || !text.style.display) {
+                    text.style.display = 'block';
+                } else {
+                    text.style.display = 'none';
+                }
+            });
+        }
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSecretBtn);
+} else {
+    setupSecretBtn();
+} 
