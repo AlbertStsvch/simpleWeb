@@ -644,4 +644,510 @@ document.addEventListener('DOMContentLoaded', () => {
             cardPhysarum = new CardPhysarum('card-physarum');
         }
     });
-}); 
+});
+
+// AI Minesweeper Game
+class MinesweeperGame {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.cols = 16;
+        this.rows = 10;
+        this.cellSize = Math.floor(Math.min(this.canvas.width / this.cols, this.canvas.height / this.rows));
+        this.offsetX = (this.canvas.width - this.cols * this.cellSize) / 2;
+        this.offsetY = (this.canvas.height - this.rows * this.cellSize) / 2;
+        this.minesCount = 25;
+        this.reset();
+        this.start();
+    }
+
+    reset() {
+        // Сетка: -1 = мина, 0..8 = число мин вокруг
+        this.grid = Array.from({length: this.rows}, () => Array(this.cols).fill(0));
+        this.revealed = Array.from({length: this.rows}, () => Array(this.cols).fill(false));
+        this.flagged = Array.from({length: this.rows}, () => Array(this.cols).fill(false));
+        this.gameOver = false;
+        this.win = false;
+        // Расставляем мины
+        let placed = 0;
+        while (placed < this.minesCount) {
+            let r = Math.floor(Math.random() * this.rows);
+            let c = Math.floor(Math.random() * this.cols);
+            if (this.grid[r][c] !== -1) {
+                this.grid[r][c] = -1;
+                placed++;
+            }
+        }
+        // Считаем числа
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                if (this.grid[r][c] === -1) continue;
+                let count = 0;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                            if (this.grid[nr][nc] === -1) count++;
+                        }
+                    }
+                }
+                this.grid[r][c] = count;
+            }
+        }
+        this.safeToReveal = [];
+        this.aiDelay = 0;
+    }
+
+    reveal(r, c) {
+        if (this.revealed[r][c] || this.flagged[r][c]) return;
+        this.revealed[r][c] = true;
+        if (this.grid[r][c] === -1) {
+            this.gameOver = true;
+            return;
+        }
+        // Автоматически открываем пустые клетки
+        if (this.grid[r][c] === 0) {
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    let nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                        if (!this.revealed[nr][nc]) this.reveal(nr, nc);
+                    }
+                }
+            }
+        }
+    }
+
+    flag(r, c) {
+        if (this.revealed[r][c]) return;
+        this.flagged[r][c] = !this.flagged[r][c];
+    }
+
+    aiStep() {
+        if (this.gameOver || this.win) return;
+        // 1. Если есть безопасные клетки — открыть
+        if (this.safeToReveal.length > 0) {
+            const [r, c] = this.safeToReveal.pop();
+            this.reveal(r, c);
+            return;
+        }
+        // 2. Ищем очевидные ходы (простая логика)
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                if (!this.revealed[r][c] || this.grid[r][c] === 0) continue;
+                let unrevealed = [];
+                let flagged = 0;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                            if (!this.revealed[nr][nc] && !this.flagged[nr][nc]) {
+                                unrevealed.push([nr, nc]);
+                            }
+                            if (this.flagged[nr][nc]) flagged++;
+                        }
+                    }
+                }
+                // Если число флагов равно числу мин — остальные безопасны
+                if (flagged === this.grid[r][c] && unrevealed.length > 0) {
+                    this.safeToReveal.push(...unrevealed);
+                    return;
+                }
+                // Если число неоткрытых клеток равно числу мин — все они мины
+                if (unrevealed.length > 0 && unrevealed.length + flagged === this.grid[r][c]) {
+                    for (const [nr, nc] of unrevealed) {
+                        this.flag(nr, nc);
+                    }
+                    return;
+                }
+            }
+        }
+        // 3. Если нет очевидных ходов — открыть случайную неоткрытую клетку
+        let candidates = [];
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                if (!this.revealed[r][c] && !this.flagged[r][c]) {
+                    candidates.push([r, c]);
+                }
+            }
+        }
+        if (candidates.length > 0) {
+            const [r, c] = candidates[Math.floor(Math.random() * candidates.length)];
+            this.reveal(r, c);
+        }
+    }
+
+    checkWin() {
+        let unrevealed = 0;
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                if (!this.revealed[r][c] && this.grid[r][c] !== -1) {
+                    unrevealed++;
+                }
+            }
+        }
+        if (unrevealed === 0 && !this.gameOver) {
+            this.win = true;
+        }
+    }
+
+    draw() {
+        // Фон
+        this.ctx.fillStyle = '#222';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Клетки
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                let x = this.offsetX + c * this.cellSize;
+                let y = this.offsetY + r * this.cellSize;
+                // Рамка
+                this.ctx.strokeStyle = '#444';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y);
+                this.ctx.lineTo(x + this.cellSize, y);
+                this.ctx.lineTo(x + this.cellSize, y + this.cellSize);
+                this.ctx.lineTo(x, y + this.cellSize);
+                this.ctx.closePath();
+                this.ctx.stroke();
+                // Открытые
+                if (this.revealed[r][c]) {
+                    this.ctx.fillStyle = '#ddd';
+                    this.ctx.fillRect(x+1, y+1, this.cellSize-2, this.cellSize-2);
+                    if (this.grid[r][c] > 0) {
+                        this.ctx.fillStyle = '#222';
+                        this.ctx.font = `${Math.floor(this.cellSize*0.6)}px Arial`;
+                        this.ctx.textAlign = 'center';
+                        this.ctx.textBaseline = 'middle';
+                        this.ctx.fillText(this.grid[r][c], x + this.cellSize/2, y + this.cellSize/2);
+                    }
+                } else {
+                    // Неоткрытые
+                    this.ctx.fillStyle = '#888';
+                    this.ctx.fillRect(x+1, y+1, this.cellSize-2, this.cellSize-2);
+                    // Флаг
+                    if (this.flagged[r][c]) {
+                        this.ctx.fillStyle = '#e74c3c';
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x + this.cellSize*0.2, y + this.cellSize*0.8);
+                        this.ctx.lineTo(x + this.cellSize*0.8, y + this.cellSize*0.5);
+                        this.ctx.lineTo(x + this.cellSize*0.2, y + this.cellSize*0.2);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                    }
+                }
+            }
+        }
+        // Мины (если проигрыш)
+        if (this.gameOver) {
+            for (let r = 0; r < this.rows; r++) {
+                for (let c = 0; c < this.cols; c++) {
+                    if (this.grid[r][c] === -1) {
+                        let x = this.offsetX + c * this.cellSize;
+                        let y = this.offsetY + r * this.cellSize;
+                        this.ctx.fillStyle = '#000';
+                        this.ctx.beginPath();
+                        this.ctx.arc(x + this.cellSize/2, y + this.cellSize/2, this.cellSize*0.3, 0, 2*Math.PI);
+                        this.ctx.fill();
+                    }
+                }
+            }
+        }
+        // Сообщения
+        this.ctx.fillStyle = this.win ? '#4CAF50' : (this.gameOver ? '#e74c3c' : '#fff');
+        this.ctx.font = '24px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(this.win ? 'Победа!' : (this.gameOver ? 'Поражение' : 'AI играет...'), 10, 30);
+    }
+
+    start() {
+        // Открываем первую клетку
+        if (!this.started) {
+            this.started = true;
+            this.reveal(Math.floor(this.rows/2), Math.floor(this.cols/2));
+        }
+        const gameLoop = () => {
+            if (!this.gameOver && !this.win) {
+                if (this.aiDelay-- <= 0) {
+                    this.aiStep();
+                    this.aiDelay = 5; // задержка между ходами
+                }
+                this.checkWin();
+            } else if (this.gameOver || this.win) {
+                setTimeout(() => this.reset(), 1500);
+                this.started = false;
+            }
+            this.draw();
+            requestAnimationFrame(gameLoop);
+        };
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    let minesweeperGame = null;
+    const programsTab = document.querySelector('.nav-tab[data-tab="programs"]');
+    programsTab.addEventListener('click', () => {
+        if (!minesweeperGame) {
+            minesweeperGame = new MinesweeperGame('minesweeper-game');
+        }
+    });
+});
+
+// AI Chrome Dino Game
+class DinoGame {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+        this.groundY = this.height - 60;
+        this.reset();
+        this.start();
+    }
+
+    reset() {
+        this.dino = {
+            x: 60,
+            y: this.groundY,
+            vy: 0,
+            width: 44,
+            height: 48,
+            isJumping: false
+        };
+        this.obstacles = [];
+        this.score = 0;
+        this.gameOver = false;
+        this.speed = 8;
+        this.gravity = 2.2;
+        this.jumpPower = 32;
+        this.spawnTimer = 0;
+        this.aiJumpCooldown = 0;
+    }
+
+    spawnObstacle() {
+        const height = 30 + Math.floor(Math.random() * 40);
+        const width = 16 + Math.floor(Math.random() * 24);
+        this.obstacles.push({
+            x: this.width + 10,
+            y: this.groundY + 48 - height,
+            width,
+            height
+        });
+    }
+
+    update() {
+        if (this.gameOver) return;
+        // Увеличиваем скорость с ростом счёта
+        this.speed = Math.min(20, 8 + Math.floor(this.score / 300));
+        // Динозавр прыгает
+        this.dino.y += this.dino.vy;
+        this.dino.vy += this.gravity;
+        if (this.dino.y >= this.groundY) {
+            this.dino.y = this.groundY;
+            this.dino.vy = 0;
+            this.dino.isJumping = false;
+        }
+        // Обновляем препятствия
+        for (const obs of this.obstacles) {
+            obs.x -= this.speed;
+        }
+        // Удаляем ушедшие препятствия
+        this.obstacles = this.obstacles.filter(obs => obs.x + obs.width > 0);
+        // Спавн новых препятствий
+        if (--this.spawnTimer <= 0) {
+            this.spawnObstacle();
+            this.spawnTimer = 40 + Math.floor(Math.random() * 40);
+        }
+        // Проверка столкновений
+        for (const obs of this.obstacles) {
+            if (this.dino.x + this.dino.width > obs.x && this.dino.x < obs.x + obs.width &&
+                this.dino.y + this.dino.height > obs.y && this.dino.y < obs.y + obs.height) {
+                this.gameOver = true;
+            }
+        }
+        // Счёт
+        this.score++;
+        // AI jump
+        this.aiStep();
+    }
+
+    aiStep() {
+        if (this.dino.isJumping || this.aiJumpCooldown > 0) {
+            this.aiJumpCooldown--;
+            return;
+        }
+        // Найти ближайшее препятствие
+        let next = null;
+        for (const obs of this.obstacles) {
+            if (obs.x + obs.width > this.dino.x) {
+                if (!next || obs.x < next.x) next = obs;
+            }
+        }
+        if (next) {
+            // Если препятствие близко и динозавр на земле — прыжок
+            const dist = next.x - (this.dino.x + this.dino.width);
+            if (dist < 60 && this.dino.y >= this.groundY) {
+                this.dino.vy = -this.jumpPower;
+                this.dino.isJumping = true;
+                this.aiJumpCooldown = 10;
+            }
+        }
+    }
+
+    draw() {
+        // Фон
+        this.ctx.fillStyle = '#fff';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        // Земля
+        this.ctx.fillStyle = '#888';
+        this.ctx.fillRect(0, this.groundY + 48, this.width, 4);
+        // Динозавр (детализированный)
+        const d = this.dino;
+        this.ctx.save();
+        // Тело
+        this.ctx.fillStyle = '#222';
+        this.ctx.strokeStyle = '#111';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x + 8, d.y + 44); // левая нога
+        this.ctx.lineTo(d.x + 8, d.y + 48);
+        this.ctx.lineTo(d.x + 20, d.y + 48);
+        this.ctx.lineTo(d.x + 20, d.y + 44);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        // Хвост
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x, d.y + 38);
+        this.ctx.lineTo(d.x - 12, d.y + 34);
+        this.ctx.lineTo(d.x, d.y + 30);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        // Туловище
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x, d.y + 40);
+        this.ctx.lineTo(d.x, d.y + 10);
+        this.ctx.lineTo(d.x + 32, d.y + 10);
+        this.ctx.lineTo(d.x + 44, d.y + 22);
+        this.ctx.lineTo(d.x + 44, d.y + 40);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        // Рука
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x + 10, d.y + 22);
+        this.ctx.lineTo(d.x + 2, d.y + 28);
+        this.ctx.lineTo(d.x + 6, d.y + 30);
+        this.ctx.lineTo(d.x + 14, d.y + 24);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        // Голова
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x + 32, d.y + 10);
+        this.ctx.lineTo(d.x + 44, d.y + 10);
+        this.ctx.lineTo(d.x + 44, d.y + 22);
+        this.ctx.lineTo(d.x + 32, d.y + 10);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        // Глаз
+        this.ctx.fillStyle = '#fff';
+        this.ctx.beginPath();
+        this.ctx.arc(d.x + 40, d.y + 14, 2, 0, 2 * Math.PI);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#222';
+        this.ctx.beginPath();
+        this.ctx.arc(d.x + 40, d.y + 14, 1, 0, 2 * Math.PI);
+        this.ctx.fill();
+        // Зубы
+        this.ctx.fillStyle = '#fff';
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x + 44, d.y + 18);
+        this.ctx.lineTo(d.x + 46, d.y + 20);
+        this.ctx.lineTo(d.x + 44, d.y + 20);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.beginPath();
+        this.ctx.moveTo(d.x + 42, d.y + 20);
+        this.ctx.lineTo(d.x + 44, d.y + 22);
+        this.ctx.lineTo(d.x + 42, d.y + 22);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.restore();
+        // Препятствия
+        for (const obs of this.obstacles) {
+            this.ctx.fillStyle = '#388e3c';
+            this.ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        }
+        // Счёт
+        this.ctx.fillStyle = '#222';
+        this.ctx.font = '24px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`Score: ${this.score}`, 10, 30);
+        if (this.gameOver) {
+            this.ctx.fillStyle = '#e74c3c';
+            this.ctx.font = '32px Arial';
+            this.ctx.fillText('GAME OVER', this.width/2-90, this.height/2);
+        }
+    }
+
+    start() {
+        const gameLoop = () => {
+            if (!this.gameOver) {
+                this.update();
+            } else {
+                setTimeout(() => this.reset(), 1200);
+            }
+            this.draw();
+            requestAnimationFrame(gameLoop);
+        };
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    let dinoGame = null;
+    const programsTab = document.querySelector('.nav-tab[data-tab="programs"]');
+    programsTab.addEventListener('click', () => {
+        if (!dinoGame) {
+            dinoGame = new DinoGame('dino-game');
+        }
+    });
+});
+
+// Secret button for Minesweeper card
+function setupMinesweeperSecretBtn() {
+    const btn = document.querySelector('.minesweeper-secret-btn');
+    const text = document.querySelector('.minesweeper-secret-text');
+    if (!btn || !text) return;
+    let timer = null;
+    btn.addEventListener('mousedown', () => {
+        text.style.display = 'block';
+    });
+    btn.addEventListener('touchstart', () => {
+        text.style.display = 'block';
+    });
+    btn.addEventListener('mouseup', () => {
+        text.style.display = 'none';
+    });
+    btn.addEventListener('mouseleave', () => {
+        text.style.display = 'none';
+    });
+    btn.addEventListener('touchend', () => {
+        text.style.display = 'none';
+    });
+    btn.addEventListener('touchcancel', () => {
+        text.style.display = 'none';
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupMinesweeperSecretBtn);
+} else {
+    setupMinesweeperSecretBtn();
+} 

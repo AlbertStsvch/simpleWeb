@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайт физарума</title>
+    <title>Экспериментальные проекты</title>
     <link rel="stylesheet" href="style.css">
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
@@ -34,7 +34,9 @@
     </nav>
     <main>
         <section id="tab-home" class="tab-content active">
-            <!-- canvas теперь вне секции -->
+            <div class="site-description">
+                Это сайт с экспериментальными симуляциями и программами. Здесь вы найдете необычные визуализации, мини-игры с нейросетями и забавные проекты с искусственным интеллектом.
+            </div>
         </section>
         <section id="tab-programs" class="tab-content">
             <div class="cards-grid">
@@ -56,18 +58,22 @@
                     <div class="card-title">AI Snake Game</div>
                 </div>
                 <div class="card">
-                    <div class="card-image"></div>
-                    <div class="card-title">Карта 4</div>
-                    <button class="secret-btn" aria-label="Показать секрет" tabindex="0"></button>
-                    <div class="secret-text" style="display:none;">thebigcb</div>
+                    <div class="card-image" style="position:relative;">
+                        <canvas id="minesweeper-game" width="680" height="440"></canvas>
+                        <button class="secret-btn minesweeper-secret-btn" aria-label="Показать секрет" tabindex="0"></button>
+                        <div class="secret-text minesweeper-secret-text" style="display:none;">thebigcb</div>
+                    </div>
+                    <div class="card-title">AI Minesweeper</div>
                 </div>
                 <div class="card">
-                    <div class="card-image"></div>
-                    <div class="card-title">Карта 5</div>
+                    <div class="card-image">
+                        <canvas id="dino-game" width="680" height="440"></canvas>
+                    </div>
+                    <div class="card-title">AI Chrome Dino</div>
                 </div>
                 <div class="card">
-                    <div class="card-image"></div>
-                    <div class="card-title">Карта 6</div>
+                    <div class="card-image"><img src="prtest2.png" alt="bullethell" /></div>
+                    <div class="card-title">bullethell game</div>
                 </div>
             </div>
         </section>
