@@ -282,4 +282,98 @@ footer {
         text-shadow: 0 0 20px rgba(76, 175, 80, 0.8),
                      0 0 30px rgba(76, 175, 80, 0.6);
     }
+}
+
+/* --- Adaptive styles for mobile --- */
+@media (max-width: 900px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    width: 98vw;
+    gap: 20px;
+  }
+  .card {
+    width: 96vw;
+    height: auto;
+    min-height: 400px;
+    padding: 24px 8px 24px 8px;
+  }
+  .card-image {
+    height: 220px;
+    min-height: 120px;
+    font-size: 1.5em;
+  }
+  .card-image img, .card-image canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+  }
+  .secret-text {
+    font-size: 1.2em;
+    padding: 10px 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    height: 48px;
+  }
+  .nav-tabs {
+    height: 48px;
+  }
+  .nav-tab {
+    font-size: 0.95em;
+    padding: 0 12px;
+    height: 48px;
+  }
+  main {
+    padding-top: 48px;
+  }
+  .card {
+    min-height: 260px;
+    padding: 12px 2vw 12px 2vw;
+  }
+  .card-title {
+    font-size: 1em;
+    margin-top: 6px;
+  }
+  .card-image {
+    height: 120px;
+    font-size: 1em;
+  }
+  .merch-item {
+    padding: 8px;
+  }
+  .price {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+  .merch-title {
+    font-size: 1em;
+    margin-bottom: 8px;
+  }
+  .merch-description {
+    font-size: 0.7em;
+    margin-bottom: 8px;
+  }
+  .out-of-stock, .best-seller {
+    top: 20px;
+    right: -40px;
+    padding: 2px 12px;
+    font-size: 0.8em;
+  }
+}
+
+@media (max-width: 400px) {
+  .card {
+    min-height: 180px;
+    padding: 4px 1vw 4px 1vw;
+  }
+  .card-image {
+    height: 60px;
+    font-size: 0.7em;
+  }
+  .card-title {
+    font-size: 0.8em;
+  }
 } 
